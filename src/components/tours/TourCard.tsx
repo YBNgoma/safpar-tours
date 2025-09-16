@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { Clock, Users, MapPin } from 'lucide-react';
+import { Clock, Users } from 'lucide-react';
 
 interface TourCardProps {
   tour: {

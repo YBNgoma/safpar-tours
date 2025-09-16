@@ -1,6 +1,6 @@
 import { Header } from '@/components/common/Header';
 import { TourCard } from '@/components/tours/TourCard';
-import { MapPin, Star, Users, Calendar } from 'lucide-react';
+import { MapPin, Star, Users } from 'lucide-react';
 
 // Mock data for demonstration
 const featuredTours = [

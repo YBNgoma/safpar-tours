@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build --turbopack", 
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "amplify:sandbox": "npx ampx sandbox --profile safpar-amplify-dev",
+    "amplify:deploy": "npx ampx pipeline-deploy --branch dev --profile safpar-amplify-dev",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.9.0",
@@ -22,14 +25,20 @@
     "react-dom": "19.1.0"
   },
   "devDependencies": {
+    "@aws-amplify/backend": "^1.16.1",
+    "@aws-amplify/backend-cli": "^1.8.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "aws-cdk-lib": "^2.204.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.25.9",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }
