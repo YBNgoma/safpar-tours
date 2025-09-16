@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Menu, X, Phone, Mail } from 'lucide-react';
+import LoginButton from '../auth/LoginButton';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -63,8 +64,9 @@ export function Header() {
             </Link>
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* Auth and CTA Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            <LoginButton />
             <Link
               href="/contact"
               className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
