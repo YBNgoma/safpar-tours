@@ -2,7 +2,7 @@ import { Header } from '@/components/common/Header';
 import { TourCard } from '@/components/tours/TourCard';
 import { MapPin, Star, Users } from 'lucide-react';
 
-// Mock data for demonstration
+// Featured tours with S3 images
 const featuredTours = [
   {
     id: 1,
@@ -13,7 +13,7 @@ const featuredTours = [
     duration_hours: 3,
     max_participants: 20,
     difficulty_level: 'easy' as const,
-    featured_image: '/images/sunset-cruise.jpg',
+    featured_image: 'images/river-cruises/zambezi-sunset-cruise.jpg',
     adult_price: 65
   },
   {
@@ -25,8 +25,32 @@ const featuredTours = [
     duration_hours: 6,
     max_participants: 12,
     difficulty_level: 'challenging' as const,
-    featured_image: '/images/rafting.jpg',
+    featured_image: 'images/adventure-activities/white-water-rafting.jpg',
     adult_price: 165
+  },
+  {
+    id: 3,
+    name: 'Mosi-oa-Tunya Wildlife Safari',
+    slug: 'mosi-oa-tunya-safari',
+    short_description: 'Explore Zambias premier wildlife park with rhino encounters',
+    category: 'wildlife',
+    duration_hours: 4,
+    max_participants: 8,
+    difficulty_level: 'moderate' as const,
+    featured_image: 'images/wildlife-safaris/mosi-oa-tunya-safari.jpg',
+    adult_price: 95
+  },
+  {
+    id: 4,
+    name: 'Cultural Village Experience',
+    slug: 'cultural-village-tour',
+    short_description: 'Immerse in local Zambian culture with authentic village visits',
+    category: 'cultural',
+    duration_hours: 5,
+    max_participants: 15,
+    difficulty_level: 'easy' as const,
+    featured_image: 'images/cultural-tours/village-experience.jpg',
+    adult_price: 75
   }
 ];
 
@@ -111,7 +135,7 @@ export default function Home() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredTours.map(tour => (
               <TourCard key={tour.id} tour={tour} />
             ))}
