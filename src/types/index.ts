@@ -17,6 +17,7 @@ export interface Tour {
   exclusions: string;
   requirements: string;
   status: 'active' | 'inactive' | 'seasonal';
+  featured: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -41,6 +42,13 @@ export interface TourWithRates extends Tour {
   child_price: number;
   season: string;
   group_discount_percent: number;
+  category_name?: string;
+  category_slug?: string;
+  currency?: string;
+  infant_price?: number;
+  min_group_size?: number;
+  valid_from?: string;
+  valid_to?: string;
 }
 
 export interface User {
