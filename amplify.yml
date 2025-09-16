@@ -1,0 +1,26 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+        # Configure environment for Safpar Tours
+        - echo "Building Safpar Tours for $AWS_BRANCH environment"
+        - echo "NEXT_PUBLIC_AMPLIFY_ENV=$AWS_BRANCH" >> .env.production
+        - echo "NEXT_PUBLIC_AMPLIFY_REGION=us-east-1" >> .env.production
+    build:
+      commands:
+        - echo "Building Next.js application..."
+        - npm run build
+    postBuild:
+      commands:
+        - echo "Build completed for Safpar Tours"
+        - echo "Deployment URL will be available shortly"
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*

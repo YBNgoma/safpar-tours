@@ -1,0 +1,44 @@
+{
+  "name": "safpar-tours",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack", 
+    "start": "next start",
+    "lint": "eslint",
+    "amplify:sandbox": "npx ampx sandbox --profile safpar-amplify-dev",
+    "amplify:deploy": "npx ampx pipeline-deploy --branch dev --profile safpar-amplify-dev",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@auth0/nextjs-auth0": "^4.9.0",
+    "@aws-amplify/ui-react": "^6.12.0",
+    "@headlessui/react": "^2.2.8",
+    "@heroicons/react": "^2.2.0",
+    "aws-amplify": "^6.15.6",
+    "lucide-react": "^0.544.0",
+    "mysql2": "^3.14.5",
+    "next": "15.5.3",
+    "next-auth": "^4.24.11",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@aws-amplify/backend": "^1.16.1",
+    "@aws-amplify/backend-cli": "^1.8.0",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "aws-cdk-lib": "^2.204.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.25.9",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.3",
+    "tailwindcss": "^4",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
