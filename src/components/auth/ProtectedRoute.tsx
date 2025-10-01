@@ -76,7 +76,7 @@ export default function ProtectedRoute({
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-            <p className="text-gray-600 mb-8">You don't have permission to access this page.</p>
+            <p className="text-gray-600 mb-8">You don&apos;t have permission to access this page.</p>
             <button
               onClick={() => router.push('/')}
               className="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded"
