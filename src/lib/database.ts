@@ -358,3 +358,218 @@ export async function checkDatabaseHealth(): Promise<{ healthy: boolean; message
     };
   }
 }
+
+// Initialize database schema
+export async function initializeSchema(): Promise<{ success: boolean; message: string }> {
+  const connection = await createConnection();
+  try {
+    // Categories table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS categories (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL UNIQUE,
+        slug VARCHAR(100) NOT NULL UNIQUE,
+        description TEXT,
+        image_url VARCHAR(500),
+        status ENUM('active', 'inactive') DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Tours table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS tours (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        category_id INT NOT NULL,
+        name VARCHAR(200) NOT NULL,
+        slug VARCHAR(200) NOT NULL UNIQUE,
+        short_description TEXT,
+        description TEXT NOT NULL,
+        duration VARCHAR(100),
+        difficulty_level ENUM('Easy', 'Moderate', 'Challenging', 'Extreme') DEFAULT 'Moderate',
+        max_group_size INT DEFAULT 12,
+        included TEXT,
+        excluded TEXT,
+        what_to_bring TEXT,
+        meeting_point VARCHAR(500),
+        image_url VARCHAR(500),
+        gallery_images JSON,
+        featured BOOLEAN DEFAULT FALSE,
+        status ENUM('active', 'inactive', 'draft') DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+        INDEX idx_category (category_id),
+        INDEX idx_slug (slug),
+        INDEX idx_featured (featured),
+        INDEX idx_status (status)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Rates table  
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS rates (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        tour_id INT NOT NULL,
+        season VARCHAR(50) NOT NULL,
+        adult_price DECIMAL(10,2) NOT NULL,
+        child_price DECIMAL(10,2),
+        infant_price DECIMAL(10,2) DEFAULT 0.00,
+        currency VARCHAR(3) DEFAULT 'USD',
+        group_discount_percent DECIMAL(5,2) DEFAULT 10.00,
+        min_group_size INT DEFAULT 6,
+        valid_from DATE,
+        valid_to DATE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE,
+        INDEX idx_tour_season (tour_id, season),
+        INDEX idx_valid_dates (valid_from, valid_to)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    // Booking inquiries table
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS booking_inquiries (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        tour_id INT NOT NULL,
+        customer_name VARCHAR(200) NOT NULL,
+        customer_email VARCHAR(200) NOT NULL,
+        customer_phone VARCHAR(50),
+        preferred_date DATE,
+        participants_adult INT NOT NULL DEFAULT 1,
+        participants_child INT DEFAULT 0,
+        participants_infant INT DEFAULT 0,
+        special_requirements TEXT,
+        message TEXT,
+        status ENUM('pending', 'contacted', 'confirmed', 'cancelled') DEFAULT 'pending',
+        admin_notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE,
+        INDEX idx_tour (tour_id),
+        INDEX idx_status (status),
+        INDEX idx_date (preferred_date),
+        INDEX idx_created (created_at)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+
+    return { success: true, message: 'Database schema initialized successfully' };
+  } catch (error) {
+    console.error('Schema initialization failed:', error);
+    return { 
+      success: false, 
+      message: `Schema initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    };
+  } finally {
+    await connection.end();
+  }
+}
+
+// Insert sample data
+export async function insertSampleData(): Promise<{ success: boolean; message: string }> {
+  const connection = await createConnection();
+  try {
+    // Insert categories using parameterized queries
+    const categories = [
+      ['River Cruises', 'river-cruises', 'Experience the majestic Zambezi River with our scenic boat cruises', 'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/river-cruise.jpg'],
+      ['Adventure Activities', 'adventure-activities', 'Thrilling outdoor adventures for adrenaline seekers', 'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/adventure.jpg'],
+      ['Wildlife Safaris', 'wildlife-safaris', "Discover Zambia's incredible wildlife in their natural habitat", 'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/wildlife-safari.jpg'],
+      ['Cultural Tours', 'cultural-tours', 'Immerse yourself in local Zambian culture and traditions', 'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/cultural-tour.jpg']
+    ];
+
+    for (const [name, slug, description, imageUrl] of categories) {
+      await connection.execute(
+        'INSERT IGNORE INTO categories (name, slug, description, image_url) VALUES (?, ?, ?, ?)',
+        [name, slug, description, imageUrl]
+      );
+    }
+
+    // Insert tours using parameterized queries
+    const tours = [
+      [
+        1, 'Zambezi Sunset Cruise', 'zambezi-sunset-cruise', 
+        'Romantic sunset cruise with wildlife viewing on the Zambezi River', 
+        'Experience the magic of an African sunset while cruising along the mighty Zambezi River. Watch elephants, hippos, and crocodiles from the comfort of our well-appointed river boat.', 
+        '3 hours', 'Easy', 12, 
+        'Boat cruise, Drinks (beer, wine, soft drinks), Snacks, Professional guide', 
+        'Transportation to/from accommodation, Gratuities', 
+        'Camera, Sun hat, Sunscreen, Light jacket for evening', 
+        'Safpar Tours Office, Livingstone', 
+        'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/river-cruise.jpg', 
+        1, 'active'
+      ],
+      [
+        2, 'Victoria Falls Bridge Bungee Jump', 'victoria-falls-bungee-jump', 
+        'Ultimate adrenaline rush with a 111m bungee jump over the Zambezi', 
+        'Take the ultimate leap of faith with a 111-meter bungee jump from the historic Victoria Falls Bridge, right over the roaring Zambezi River.', 
+        '2 hours', 'Extreme', 8, 
+        'Professional instruction, Safety equipment, Certificate, Photos and video', 
+        'Transportation, Personal expenses', 
+        'Comfortable clothing, Closed-toe shoes', 
+        'Victoria Falls Bridge', 
+        'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/adventure.jpg', 
+        1, 'active'
+      ],
+      [
+        3, 'Chobe National Park Day Trip', 'chobe-national-park-day-trip', 
+        "Full day safari in Botswana's renowned Chobe National Park", 
+        'Cross into Botswana for an unforgettable day in Chobe National Park, famous for its large herds of elephants and diverse wildlife.', 
+        '12 hours', 'Moderate', 16, 
+        'Transportation, Park fees, Game drive, Boat cruise, Lunch, Professional guide', 
+        'Beverages, Gratuities', 
+        'Camera, Binoculars, Hat, Sunscreen, Comfortable clothing', 
+        'Safpar Tours Office, Livingstone', 
+        'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/wildlife-safari.jpg', 
+        1, 'active'
+      ],
+      [
+        4, 'Livingstone Cultural Village Tour', 'livingstone-cultural-village-tour', 
+        'Authentic cultural experience with village visits and local traditions', 
+        'Immerse yourself in traditional Zambian culture with visits to local villages, traditional craft demonstrations, and authentic local cuisine.', 
+        '5 hours', 'Easy', 10, 
+        'Transportation, Village visits, Cultural demonstrations, Traditional lunch, Local guide', 
+        'Personal purchases, Gratuities', 
+        'Comfortable walking shoes, Camera, Respectful clothing', 
+        'Safpar Tours Office, Livingstone', 
+        'https://safpar-tours-images-1758010007.s3.us-east-1.amazonaws.com/demo/cultural-tour.jpg', 
+        0, 'active'
+      ]
+    ];
+
+    for (const tourData of tours) {
+      await connection.execute(
+        'INSERT IGNORE INTO tours (category_id, name, slug, short_description, description, duration, difficulty_level, max_group_size, included, excluded, what_to_bring, meeting_point, image_url, featured, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        tourData
+      );
+    }
+
+    // Insert rates using parameterized queries
+    const rates = [
+      [1, 'High Season', 85.00, 45.00, 0.00, 10.00, 6, '2024-06-01', '2024-10-31'],
+      [1, 'Low Season', 70.00, 35.00, 0.00, 10.00, 6, '2024-11-01', '2024-05-31'],
+      [2, 'All Year', 160.00, null, null, 5.00, 4, '2024-01-01', '2024-12-31'],
+      [3, 'High Season', 180.00, 90.00, 0.00, 15.00, 8, '2024-06-01', '2024-10-31'],
+      [3, 'Low Season', 150.00, 75.00, 0.00, 15.00, 8, '2024-11-01', '2024-05-31'],
+      [4, 'All Year', 65.00, 35.00, 0.00, 12.00, 6, '2024-01-01', '2024-12-31']
+    ];
+
+    for (const rateData of rates) {
+      await connection.execute(
+        'INSERT IGNORE INTO rates (tour_id, season, adult_price, child_price, infant_price, group_discount_percent, min_group_size, valid_from, valid_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        rateData
+      );
+    }
+
+    return { success: true, message: 'Sample data inserted successfully' };
+  } catch (error) {
+    console.error('Sample data insertion failed:', error);
+    return { 
+      success: false, 
+      message: `Sample data insertion failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
+    };
+  } finally {
+    await connection.end();
+  }
+}

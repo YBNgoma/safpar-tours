@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack", 
+    "dev:clean": "node scripts/dev-clean.js",
+    "dev:force": "./scripts/dev-clean.sh",
+    "kill:3000": "lsof -ti:3000 | xargs kill -9 2>/dev/null || echo 'Port 3000 is free'",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
     "amplify:sandbox": "npx ampx sandbox --profile safpar-amplify-dev",
@@ -12,7 +15,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.9.0",
+    "@auth0/nextjs-auth0": "^4.10.0",
     "@aws-amplify/ui-react": "^6.12.0",
     "@headlessui/react": "^2.2.8",
     "@heroicons/react": "^2.2.0",

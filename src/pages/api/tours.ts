@@ -37,7 +37,7 @@ export default async function handler(
       const transformedTours = tours.map(tour => ({
         ...tour,
         // Ensure image URLs are properly formatted
-        featured_image: tour.featured_image || 'images/placeholder.jpg',
+        featured_image: tour.image_url || 'images/placeholder.jpg',
         category: tour.category_slug || 'general',
         // Add computed fields
         has_group_discount: tour.group_discount_percent > 0,
